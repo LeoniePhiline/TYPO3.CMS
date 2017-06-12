@@ -95,6 +95,13 @@ class FormInlineAjaxController
         $parentData = $formDataCompiler->compile($formDataCompilerInputForParent);
         $parentConfig = $parentData['processedTca']['columns'][$parentFieldName]['config'];
 
+        if (isset($ajaxArguments['context'])) {
+            $context = json_decode($ajaxArguments['context'], true);
+            if (GeneralUtility::hmac(serialize($context['config'])) === $context['hmac']) {
+                $parentConfig = $context['config'];
+            }
+        }
+
         // Child, a record from this table should be rendered
         $child = $inlineStackProcessor->getUnstableStructure();
         if (MathUtility::canBeInterpretedAsInteger($child['uid'])) {
@@ -266,6 +273,13 @@ class FormInlineAjaxController
         $parentData = $formDataCompiler->compile($formDataCompilerInputForParent);
         $parentConfig = $parentData['processedTca']['columns'][$parentFieldName]['config'];
 
+        if (isset($ajaxArguments['context'])) {
+            $context = json_decode($ajaxArguments['context'], true);
+            if (GeneralUtility::hmac(serialize($context['config'])) === $context['hmac']) {
+                $parentConfig = $context['config'];
+            }
+        }
+
         if ($parentConfig['type'] === 'flex') {
             $parentConfig = $this->getParentConfigFromFlexForm($parentConfig, $domObjectId);
             $parentData['processedTca']['columns'][$parentFieldName]['config'] = $parentConfig;
@@ -367,6 +381,14 @@ class FormInlineAjaxController
             $formDataCompiler = GeneralUtility::makeInstance(FormDataCompiler::class, $formDataGroup);
             $parentData = $formDataCompiler->compile($formDataCompilerInputForParent);
             $parentConfig = $parentData['processedTca']['columns'][$parentFieldName]['config'];
+
+            if (isset($ajaxArguments['context'])) {
+                $context = json_decode($ajaxArguments['context'], true);
+                if (GeneralUtility::hmac(serialize($context['config'])) === $context['hmac']) {
+                    $parentConfig = $context['config'];
+                }
+            }
+
             $parentLanguageField = $parentData['processedTca']['ctrl']['languageField'];
             $parentLanguage = $parentData['databaseRow'][$parentLanguageField];
             $oldItemList = $parentData['databaseRow'][$parentFieldName];
